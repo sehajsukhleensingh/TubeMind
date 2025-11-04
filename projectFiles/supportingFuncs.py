@@ -26,7 +26,7 @@ def ytUrlId(url: str) -> str:
         return f"Invalid url {url}"
 
 # uses the ytTranscript Api to fetch the transcripts of a yt video 
-def transcipt(ytID: str , lang: str = "en") -> str:
+def transcript(ytID: str , lang: str = "en") -> str:
     """
     this function takes Youtube video id as the input and returns the transcripts
     of the video in the language entered by user , default english (en)
