@@ -32,5 +32,5 @@ Built with **Streamlit** and powered by **Retrieval-Augmented Generation (RAG)**
 
 1. **Clone this repository:**
    ```bash
-   git clone https://github.com/<your-username>/TubeMind.git
+   git clone https://github.com/sehajsukhleensing/TubeMind.git
    cd TubeMind
