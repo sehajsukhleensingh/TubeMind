@@ -1,4 +1,4 @@
-# 🎥 TubeMind — Watch Less, Understand More
+# 🎥 TubeMind — Watch Smarter , Learn Faster
 
 **TubeMind** is an AI-powered tool that transforms YouTube videos into meaningful knowledge.  
 Ask questions, generate notes, get summary , analyze viewer sentiment — all in one intelligent, interactive interface.
