@@ -3,8 +3,16 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import time
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_google_genai.embeddings import GoogleGenerativeAIEmbeddings
+from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
 load_dotenv()
+
+modl = ChatGoogleGenerativeAI(
+    model = "gemini-2.5-flash-lite" , 
+    temperature = 0.2 
+)
 
 # extracts the ytVid ID from its url 
 def ytUrlId(url: str) -> str:
@@ -47,12 +55,6 @@ def transcript(ytID: str , lang: str = "en") -> str:
     
     except Exception as e:
         return f"failed to fetch the transcript , error = {e}"
-
-
-modl = ChatGoogleGenerativeAI(
-    model = "gemini-2.5-flash-lite" , 
-    temperature = 0.2 
-)
 
 
 # translates the trascript to the preffered language , default = english 
@@ -206,6 +208,66 @@ def importantTopics(transcript: list[str]):
         return f"failed to create the notes , error {e}"
 
 
-# ytID = ytUrlId("https://www.youtube.com/watch?v=jFbbRfe4pnk")
-# transcipts = transcipt(ytID,"hi")
-# translated = translate(transcipts)
+def createChucks(transcript: list[str]) -> str:
+    """
+    this function takes the transcript as the input and create the chuncks of it 
+    """
+    splitter = RecursiveCharacterTextSplitter(chunk_size = 10000 , chunk_overlap = 999)
+    doc = splitter.create_documents(transcript)
+
+    return doc
+
+
+def createEmbeddingVectorStore(docs):
+    """
+    this function takes chuncks as input and create its embddings and store it 
+    in a vector store 
+    """
+    embeddingModl = GoogleGenerativeAIEmbeddings(model = "gemini-embedding-001")
+
+    vectorStore = FAISS.from_documents(documents = docs , embedding = embeddingModl)
+
+    return vectorStore
+
+
+def ragWork(query , vectorStore):
+
+    retriver = vectorStore.as_retriever(search_type = "similarity" , search_kwargs = {"k":3})
+    res = retriver.invoke(query)
+
+    resDoc = "\n".join(text.page_content for text in res) 
+
+    prompt = PromptTemplate(
+        template= """
+        You are a highly intelligent and helpful AI assistant.
+        You are given a *context* extracted from a private knowledge base, and a *user query*.
+        Your goal is to give the most accurate, natural, and helpful answer possible.
+
+        RULES:
+        - Use ONLY the given context to answer. 
+        - If the context does not contain enough information, say politely: 
+        "I don’t have enough information in the provided context to answer confidently."
+        - Never invent, assume, or add details not supported by the context.
+        - Be clear, concise, and structured. Use bullet points or short paragraphs when needed.
+        - If the context contains multiple viewpoints, summarize them fairly.
+        - Prefer natural, conversational phrasing rather than robotic or textbook tone.
+        ---
+        CONTEXT:
+        {resDoc}
+        ---
+        USER QUERY:
+        {query}
+        ---
+        """ , input_variables= ["query","resDoc"] )
+    
+    chain = prompt | modl
+    
+    try:
+        res = chain.invoke({"query":query,"resDoc":resDoc})
+        return res.content
+
+    except Exception as e:
+        return f"failed to generate the result , error: {e}"
+
+
+    
