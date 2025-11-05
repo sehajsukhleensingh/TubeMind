@@ -17,7 +17,7 @@ Built with **Streamlit** and powered by **Retrieval-Augmented Generation (RAG)**
 -  **Multi-Video Comparison (Coming Soon)** — Compare insights from multiple videos on the same topic.  
 
 ## Flowchart
-[!Alt Image](https://github.com/sehajsukhleensingh/TubeMind/blob/c1d28b8154ca7f0051764f7d6ad975e6a92cda4e/flowchart/flowchart.png)
+![Alt Image](https://github.com/sehajsukhleensingh/TubeMind/blob/c1d28b8154ca7f0051764f7d6ad975e6a92cda4e/flowchart/flowchart.png)
 
 ## Tech Stack
 
