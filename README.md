@@ -1,4 +1,4 @@
-# 🎥 TubeMind — Watch Smarter , Learn Faster
+# TubeMind — Watch Smarter , Learn Faster
 
 **TubeMind** is an AI-powered tool that transforms YouTube videos into meaningful knowledge.  
 Ask questions, generate notes, get summary , analyze viewer sentiment — all in one intelligent, interactive interface.
@@ -16,9 +16,10 @@ Built with **Streamlit** and powered by **Retrieval-Augmented Generation (RAG)**
 -  **Summary** - to get the short , accurate and a consise summary of videos ( life saver for husge long loooongg podcasts )
 -  **Multi-Video Comparison (Coming Soon)** — Compare insights from multiple videos on the same topic.  
 
----
+## Flowchart
+[!Alt Image](https://github.com/sehajsukhleensingh/TubeMind/blob/c1d28b8154ca7f0051764f7d6ad975e6a92cda4e/flowchart/flowchart.png)
 
-## 🧩 Tech Stack
+## Tech Stack
 
 - **Frontend:** Streamlit  
 - **Backend:** Python  
