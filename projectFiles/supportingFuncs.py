@@ -1,18 +1,27 @@
+import streamlit as st
 import re 
 from youtube_transcript_api import YouTubeTranscriptApi
 import time
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai.embeddings import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
 load_dotenv()
 
-modl = ChatGoogleGenerativeAI(
-    model = "gemini-2.5-flash-lite" , 
-    temperature = 0.2 
-)
+def load_gemini():
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    modl = ChatGoogleGenerativeAI(
+        model = "gemini-2.5-flash" , 
+        temperature = 0.2 
+    )
+    st.session_state.modl = modl 
+    return st.session_state.modl
+
+def load_embedding_modl():
+    from langchain_huggingface import HuggingFaceEndpointEmbeddings
+    embedModl = HuggingFaceEndpointEmbeddings(model="BAAI/bge-base-en-v1.5")
+    st.session_state.embedModl = embedModl
+    return st.session_state.embedModl
 
 # extracts the ytVid ID from its url 
 def ytUrlId(url: str) -> str:
@@ -59,6 +68,7 @@ def transcript(ytID: str , lang: str = "en") -> str:
 
 # translates the trascript to the preffered language , default = english 
 def translate(transcript: list[str] , language: str = "english") -> str:
+
     """this function takes transcript as the input and returns the translated version of 
     transcript in the language given input by user 
     INPUT:
@@ -97,6 +107,7 @@ def translate(transcript: list[str] , language: str = "english") -> str:
     input_variables = ['transcript','language']
     )
 
+    modl = load_gemini()
     try : 
         chainTranslate = promptTranslate | modl 
         res = chainTranslate.invoke({"transcript":transcript,"language":language})
@@ -150,6 +161,7 @@ def notes(transcript: list[str]) -> str:
         input_variables= ['transcript']
     )
 
+    modl = load_gemini()
     try:
         chainNotes = promptNotes | modl
         res = chainNotes.invoke({"transcript":transcript})
@@ -176,7 +188,7 @@ def importantTopics(transcript: list[str]):
         You are a top-tier executive analyst and editor. Your primary skill is to listen to a large volume of information and instantly identify the "signal in the noise." You excel at filtering content to find only the most mission-critical, high-priority points.
 
         ### YOUR TASK
-        Your sole task is to analyze the provided transcript and "jot out" a concise, bulleted list of , only the *most important key 5 points * in [Specify Language, e.g., English]. This list is for someone who has no other time to review the content.
+        Your sole task is to analyze the provided transcript and "jot out" a concise, bulleted list of , only the *most important key 5 points * in  **English**,. This list is for someone who has no other time to review the content.
 
         ### CORE DIRECTIVES & STRICT CONSTRAINTS
         You must adhere to the following rules without exception:
@@ -198,6 +210,7 @@ def importantTopics(transcript: list[str]):
     input_variables=['transcript']
     )
 
+    modl = load_gemini()
     try:
         chainImpTopics = promptImpTopics | modl 
         res = chainImpTopics.invoke({"transcript":transcript})
@@ -217,20 +230,24 @@ def createChucks(transcript: list[str]) -> str:
 
     return doc
 
-
 def createEmbeddingVectorStore(docs):
+
     """
     this function takes chuncks as input and create its embddings and store it 
     in a vector store 
     """
-    embeddingModl = GoogleGenerativeAIEmbeddings(model = "gemini-embedding-001")
+    # embeddingModl = GoogleGenerativeAIEmbeddings(model = "gemini-embedding-001")
 
-    vectorStore = FAISS.from_documents(documents = docs , embedding = embeddingModl)
+    embedModl = load_embedding_modl()
+    vectorStore = FAISS.from_documents(documents = docs , embedding = embedModl)
 
     return vectorStore
 
 
+
 def ragWork(query , vectorStore):
+
+    modl = load_gemini()
 
     retriver = vectorStore.as_retriever(search_type = "similarity" , search_kwargs = {"k":3})
     res = retriver.invoke(query)
