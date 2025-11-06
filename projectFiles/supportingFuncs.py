@@ -59,7 +59,7 @@ def transcript(ytID: str , lang: str = "en") -> str:
         # fetches the each text part from different time snippets
         transcript = [text.text for text in res.snippets]
         # combines the whole different "strs" list into a single big "str" 
-        transcript = ["".join(transcript)]
+        transcript = "".join(transcript)
         return transcript
     
     except Exception as e:
@@ -67,7 +67,7 @@ def transcript(ytID: str , lang: str = "en") -> str:
 
 
 # translates the trascript to the preffered language , default = english 
-def translate(transcript: list[str] , language: str = "english") -> str:
+def translate(transcript: str , language: str = "english") -> str:
 
     """this function takes transcript as the input and returns the translated version of 
     transcript in the language given input by user 
@@ -172,7 +172,7 @@ def notes(transcript: list[str]) -> str:
         return f"failed to create the notes , error {e}"
     
 
-def importantTopics(transcript: list[str]):
+def importantTopics(transcript: str):
     """
     this function takes transcript as the input and returns the important topics 
     of the given transcript
@@ -221,11 +221,11 @@ def importantTopics(transcript: list[str]):
         return f"failed to create the notes , error {e}"
 
 
-def createChucks(transcript: list[str]) -> str:
+def createChucks(transcript: str) -> str:
     """
     this function takes the transcript as the input and create the chuncks of it 
     """
-    splitter = RecursiveCharacterTextSplitter(chunk_size = 10000 , chunk_overlap = 999)
+    splitter = RecursiveCharacterTextSplitter(chunk_size = 1000 , chunk_overlap = 100)
     doc = splitter.create_documents(transcript)
 
     return doc
@@ -249,33 +249,43 @@ def ragWork(query , vectorStore):
 
     modl = load_gemini()
 
-    retriver = vectorStore.as_retriever(search_type = "similarity" , search_kwargs = {"k":3})
+    retriver = vectorStore.as_retriever(search_type = "similarity" , search_kwargs = {"k":5})
     res = retriver.invoke(query)
 
     resDoc = "\n".join(text.page_content for text in res) 
 
     prompt = PromptTemplate(
-        template= """
-        You are a highly intelligent and helpful AI assistant.
-        You are given a *context* extracted from a private knowledge base, and a *user query*.
-        Your goal is to give the most accurate, natural, and helpful answer possible.
+    template= """
+    You are **Taurus ♉︎**, a highly intelligent, warm, and conversational AI assistant.
+    You have access to a *context* extracted from a private knowledge base and a *user query*.
+    Your goal is to give the most accurate, natural, and helpful answer possible while maintaining a friendly and confident tone.
 
-        RULES:
-        - Use ONLY the given context to answer. 
-        - If the context does not contain enough information, say politely: 
-        "I don’t have enough information in the provided context to answer confidently."
-        - Never invent, assume, or add details not supported by the context.
-        - Be clear, concise, and structured. Use bullet points or short paragraphs when needed.
-        - If the context contains multiple viewpoints, summarize them fairly.
-        - Prefer natural, conversational phrasing rather than robotic or textbook tone.
-        ---
-        CONTEXT:
-        {resDoc}
-        ---
-        USER QUERY:
-        {query}
-        ---
-        """ , input_variables= ["query","resDoc"] )
+    ### RESPONSE GUIDELINES
+    - Always **prioritize the provided context** — use it as your main source of truth.
+    - If the context is limited or incomplete, use **logical reasoning and general knowledge** to fill small gaps naturally. 
+    - If a question truly cannot be answered due to missing information, say politely:
+    > "I’m not fully sure based on what I have, but here’s what I can tell you..."
+    - Never fabricate data, names, or facts that clearly aren’t in the context.
+    - Write in a **conversational, human-like** tone. Avoid robotic phrasing.
+    - Use bullet points or short paragraphs for clarity.
+    - If the context includes multiple viewpoints, **summarize them fairly**.
+    - Always aim to be **helpful, insightful, and engaging** — not overly cautious.
+
+    ---
+
+    ### CONTEXT
+    {resDoc}
+
+    ---
+
+    ### USER QUERY
+    {query}
+
+    ---
+
+    ### YOUR RESPONSE
+    (Write your best possible answer based on the context and reasoning.)
+    """ , input_variables= ["query","resDoc"] )
     
     chain = prompt | modl
     
