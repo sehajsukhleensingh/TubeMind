@@ -27,3 +27,10 @@ langchain-community
 wikipedia
 
 youtube_transcript_api
+
+sentence-transformers
+
+#for streamlit 
+watchdog
+
+faiss-cpu
