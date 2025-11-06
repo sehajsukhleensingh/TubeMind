@@ -12,14 +12,15 @@ from supportingFuncs import (
     ragWork
 )
 #css
-st.markdown("""
-        <style>
-        html, body, div, span, p, h1, h2, h3, h4, h5, h6, label{
-            font-family:"courier" !important;
-        }
-        </style>
-""" , unsafe_allow_html=True # so that streamlit will render it as css 
-)
+with open("cssFile.txt","r") as file:
+    st.markdown(f"""<style>{file.read()} </style> """,unsafe_allow_html=True)
+
+st.markdown(""" <div class="fixed-header">
+            <div class="header-inner">
+                <span class="title">Taurus ♉︎</span>
+            </div>
+        </div>""" , unsafe_allow_html = True)
+
 st.set_page_config(
     page_title = "ytBuddy" , 
     page_icon= "" , 
@@ -43,7 +44,6 @@ with st.sidebar:
     )
     
     submit = st.button("start")
-    st.markdown("---")
 
 # execution process flow 
 if submit:
@@ -54,14 +54,15 @@ if submit:
 
             if language:
                 with st.spinner("translating the transcripts"):
-                    vidTrans = translate([vidTrans],language=language)
+                    vidTrans = transcript(vidId,lang=language)
+                    st.session_state.translatedTrans = translate([vidTrans])
         
         if taskOpt == "Chat with video (powered by - Gemini-2.5)":
             pass
 
         if taskOpt == "Get Notes":
             with st.spinner("creating the best notes for you"):
-                vidNotes = notes(vidTrans)
+                vidNotes = notes(st.session_state.translatedTrans)
                 st.subheader("NOTES")
                 st.write(vidNotes)
                 st.markdown("---")
@@ -69,7 +70,7 @@ if submit:
 
         if taskOpt == "Get Summary":
             with st.spinner("generating the summary for you"):
-                vidImpPoints = importantTopics(vidTrans) 
+                vidImpPoints = importantTopics(st.session_state.translatedTrans) 
                 st.subheader("SUMMARY")
                 st.write(vidImpPoints)
                 st.markdown("---")
@@ -78,16 +79,14 @@ if submit:
         if taskOpt == "Show Transcript of Video":
             with st.spinner("printing the transcript"):
                 st.subheader("TRANSCRIPT")
-                st.write(vidTrans)
+                st.write(st.session_state.translatedTrans)
                 st.markdown("---")
                 st.success("keep learning")
         
         if taskOpt == "Chat with video (powered by - Gemini-2.5)":
             with st.spinner("creating chat enviornment"):
-                chunks = createChucks(vidTrans)
-                vectorStore = createEmbeddingVectorStore(chunks)
-
-                st.session_state.vectorStore = vectorStore
+                chunks = createChucks(st.session_state.translatedTrans)
+                st.session_state.vectorStore = createEmbeddingVectorStore(chunks)
                 st.session_state.chatHistory = []
             
     else:
@@ -98,14 +97,12 @@ if submit:
 # chatBOt session
 if taskOpt == "Chat with video (powered by - Gemini-2.5)" and "vectorStore" in st.session_state:
 
-    st.subheader("welcome to Taurus")
-
     if "chatHistory" in st.session_state:
         for message in st.session_state.chatHistory:
             if isinstance(message,HumanMessage):
                 st.write("You: ","\n",message.content)
             elif isinstance(message,AIMessage):
-                st.write("♉︎ Taurus: ","\n",message.content)
+                st.write("Taurus ♉︎: ","\n",message.content)
     
     usrqry = st.chat_input("waiting to clear your doubt ..")
     if usrqry:
@@ -113,4 +110,4 @@ if taskOpt == "Chat with video (powered by - Gemini-2.5)" and "vectorStore" in s
         st.write("You: ","\n",usrqry)
         res = ragWork(usrqry , st.session_state.vectorStore)
         st.session_state.chatHistory.append(AIMessage(res))
-        st.write("♉︎ Taurus: " ,"\n", res)
+        st.write("Taurus ♉︎: " ,"\n", res)
