@@ -5,6 +5,7 @@ import time
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
+from langchain_core.documents import Document 
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -226,8 +227,8 @@ def createChunks(transcript: str) -> str:
     this function takes the transcript as the input and create the chuncks of it 
     """
     splitter = RecursiveCharacterTextSplitter(chunk_size = 1000 , chunk_overlap = 100)
-    doc = splitter.create_documents(transcript)
-
+    doc = splitter.create_documents([transcript])
+ 
     return doc
 
 def createEmbeddingVectorStore(docs):
