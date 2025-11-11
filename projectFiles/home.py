@@ -50,19 +50,19 @@ if submit:
     if ytUrl:
         vidId = ytUrlId(ytUrl)
         with st.spinner("fetching the transcripts"):
-            vidTrans = transcript(vidId)
+            st.session_state.vidTrans = transcript(vidId)
 
             if language:
                 with st.spinner("translating the transcripts"):
                     vidTrans = transcript(vidId,lang=language)
-                    st.session_state.translatedTrans = translate([vidTrans])
+                    st.session_state.vidTrans = translate([vidTrans])
         
         if taskOpt == "Chat with video (powered by - Gemini-2.5)":
             pass
 
         if taskOpt == "Get Notes":
             with st.spinner("creating the best notes for you"):
-                vidNotes = notes(st.session_state.translatedTrans)
+                vidNotes = notes(st.session_state.vidTrans)
                 st.subheader("NOTES")
                 st.write(vidNotes)
                 st.markdown("---")
@@ -70,7 +70,7 @@ if submit:
 
         if taskOpt == "Get Summary":
             with st.spinner("generating the summary for you"):
-                vidImpPoints = importantTopics(st.session_state.translatedTrans) 
+                vidImpPoints = importantTopics(st.session_state.vidTrans) 
                 st.subheader("SUMMARY")
                 st.write(vidImpPoints)
                 st.markdown("---")
@@ -79,13 +79,13 @@ if submit:
         if taskOpt == "Show Transcript of Video":
             with st.spinner("printing the transcript"):
                 st.subheader("TRANSCRIPT")
-                st.write(st.session_state.translatedTrans)
+                st.write(st.session_state.vidTrans)
                 st.markdown("---")
                 st.success("keep learning")
         
         if taskOpt == "Chat with video (powered by - Gemini-2.5)":
             with st.spinner("creating chat enviornment"):
-                chunks = createChunks(st.session_state.translatedTrans)
+                chunks = createChunks(st.session_state.vidTrans)
                 st.session_state.vectorStore = createEmbeddingVectorStore(chunks)
                 st.session_state.chatHistory = []
             
