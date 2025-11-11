@@ -221,7 +221,7 @@ def importantTopics(transcript: str):
         return f"failed to create the notes , error {e}"
 
 
-def createChucks(transcript: str) -> str:
+def createChunks(transcript: str) -> str:
     """
     this function takes the transcript as the input and create the chuncks of it 
     """

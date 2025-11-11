@@ -7,7 +7,7 @@ from supportingFuncs import (
     translate ,
     notes , 
     importantTopics ,
-    createChucks ,
+    createChunks ,
     createEmbeddingVectorStore, 
     ragWork
 )
@@ -85,7 +85,7 @@ if submit:
         
         if taskOpt == "Chat with video (powered by - Gemini-2.5)":
             with st.spinner("creating chat enviornment"):
-                chunks = createChucks(st.session_state.translatedTrans)
+                chunks = createChunks(st.session_state.translatedTrans)
                 st.session_state.vectorStore = createEmbeddingVectorStore(chunks)
                 st.session_state.chatHistory = []
             
