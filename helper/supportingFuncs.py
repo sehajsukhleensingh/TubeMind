@@ -24,7 +24,7 @@ def ytUrlId(url: str) -> str:
 
 
 # uses the ytTranscript Api to fetch the transcripts of a yt video 
-def transcriptText(ytID: str , lang: str = "en") -> str:
+def transcript_text(ytID: str , lang: str = "en") -> str:
     """
     this function takes Youtube video id as the input and returns the transcripts
     of the video in the language entered by user , default english (en)
@@ -44,10 +44,10 @@ def transcriptText(ytID: str , lang: str = "en") -> str:
         return transcript
     
     except Exception as e:
-        return f"failed to fetch the transcript , error = {e}"
+        raise RuntimeError("failed to fetch the transcript") from e
 
     
-def createChunks(transcript: str) -> str:
+def create_chunks(transcript: str) -> str:
     """
     this function takes the transcript as the input and create the chuncks of it 
     """
@@ -56,7 +56,7 @@ def createChunks(transcript: str) -> str:
  
     return doc
 
-def fetchPrompt(path:str) -> str:
+def fetch_prompts(path:str) -> str:
     """
     this function fetches the textual prompts for diff purposes 
 
