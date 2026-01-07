@@ -16,7 +16,7 @@ class Utility:
         self.embedder = embedder
 
 
-    def _fetch_transcript(self,url: str):
+    def _fetch_transcript(self,url: str) -> str:
 
         id = ytUrlId(url)
         trans = transcript_text(id ,lang = "en")
@@ -25,7 +25,7 @@ class Utility:
     
 
     # translates the trascript to the preffered language , default = english 
-    def translate(self , url: str , language: str = "english") -> str:
+    def _translate(self , transcript:str , language: str = "en") -> str:
 
         """this function takes transcript as the input and returns the translated version of 
         transcript in the language given input by user 
@@ -34,14 +34,12 @@ class Utility:
         OUPUT:
             translated version of transcript
         """
+        
         promptTranslate = PromptTemplate(
             template = fetch_prompts("prompts/translate.md") ,
 
         input_variables = ['transcript','language']
         )
-
-        transcript = self._fetch_transcript(url)
-
         
         try : 
             chainTranslate = promptTranslate | self.llm 
@@ -53,7 +51,21 @@ class Utility:
             raise RuntimeError("failed to translate error occured") from e
 
 
-    def notes(self ,url: str) -> str:
+    def _normalise_transcript(self , url:str , language = "en") -> str:
+
+        trans = self._fetch_transcript(url)
+        if language != "en":
+            trans = self._translate(trans , language)
+
+        return trans
+
+
+    def get_transcript(self,url:str,language="en") -> str:
+
+        return self._normalise_transcript(url,language)
+    
+    
+    def notes(self , url: str ,language="en") -> str:
         """
         this function takes transcript as the input and returns well jotted notes 
         of the given transcript
@@ -63,13 +75,13 @@ class Utility:
             notes based on the transcript
         """
 
+        transcript = self._normalise_transcript(url,language)
+        
         promptNotes = PromptTemplate(
             template= fetch_prompts("prompts/notes.md") ,
             
             input_variables= ['transcript']
         )
-
-        transcript = self._fetch_transcript(url)
     
         try:
             chainNotes = promptNotes | self.llm
@@ -81,7 +93,7 @@ class Utility:
             raise RuntimeError("failed to create the notes") from e
         
 
-    def important_topics(self , url: str):
+    def important_topics(self , url: str ,language="en") -> str:
         """
         this function takes transcript as the input and returns the important topics 
         of the given transcript
@@ -91,13 +103,13 @@ class Utility:
             important topics from the transcript
         """
 
+        transcript = self._normalise_transcript(url,language)
+        
         promptImpTopics = PromptTemplate(
             template= fetch_prompts("prompts/impTopic.md")
              ,
         input_variables=['transcript']
         )
-        
-        transcript = self._fetch_transcript(url)
     
         try:
             chainImpTopics = promptImpTopics | self.llm 
@@ -109,24 +121,39 @@ class Utility:
             raise RuntimeError("failed to create the notes") from e
 
 
-    def _create_embedding_vector_store(self , url: str):
+    def create_embedding_vector_store(self , url: str , language="en") -> FAISS:
 
         """
         this function takes chuncks as input and create its embddings and store it 
         in a vector store 
         """
 
-        transcript = self._fetch_transcript(url)
+        transcript = self._normalise_transcript(url,language)
         chunks = create_chunks(transcript)
-        docs = [Document(page_content=c) for c in chunks]
 
-        vector_store = FAISS.from_documents(documents = docs , embedding = self.embedder)
+        vector_store = FAISS.from_documents(documents = chunks , embedding = self.embedder)
 
         return vector_store
 
 
     def rag_work(self , query , vector_store):
+        """
+          Perform Retrieval-Augmented Generation (RAG) using the provided vector store.
 
+        Retrieves the most relevant document chunks for the given query, builds a
+        contextual prompt from those chunks, and generates a final response using
+        the language model.
+
+        Args:
+            query (str): User question or query.
+            vector_store: Vector database (e.g., FAISS) used for similarity retrieval.
+
+        Returns:
+            str: Generated response based on retrieved context.
+
+        Raises:
+            RuntimeError: If retrieval or generation fails.
+        """
 
         retriver = vector_store.as_retriever(search_type = "similarity" , search_kwargs = {"k":5})
         res = retriver.invoke(query)
