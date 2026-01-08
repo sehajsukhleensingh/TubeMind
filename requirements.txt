@@ -1,36 +1,40 @@
-# LangChain Core
-langchain
-langchain-core
+# LangChain 
+langchain==1.0.3
+langchain-core==1.0.3
+langchain-community==0.4.1
+langchain-text-splitters==1.0.0
 
 # OpenAI Integration
-langchain-openai
-openai
+langchain-openai==1.0.2
+openai==2.7.1
 
 # Google Gemini (PaLM) Integration
-langchain-google-genai
-google-genai
+langchain-google-genai==3.0.1
+google-genai==1.49.0
 
 # Hugging Face Integration
-langchain-huggingface
-transformers
-huggingface-hub
+langchain-huggingface==1.0.1
+transformers==4.57.1
+huggingface-hub==0.36.0
+sentence-transformers==5.1.2
 
 # Environment Variable Management
-python-dotenv
+python-dotenv==1.2.1
 
 # Machine Learning Utilities
-numpy
-scikit-learn
+numpy==2.3.4
+scikit-learn==1.7.2
 
-langchain-community
+wikipedia==1.4.0
 
-wikipedia
-
-youtube_transcript_api
-
-sentence-transformers
+# to fetch the youtube vid's transcript
+youtube_transcript_api==1.2.3
 
 #for streamlit 
-watchdog
+watchdog==6.0.0
 
-faiss-cpu
+#for faiss vector store
+faiss-cpu==1.12.0
+
+#streamlit for the UI 
+streamlit==1.51.0
