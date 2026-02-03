@@ -1,7 +1,7 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import re
-
+from cache.base_cache import set_cache , get_cache
 
 # extracts the ytVid ID from its url 
 def ytUrlId(url: str) -> str:
@@ -33,6 +33,13 @@ def transcript_text(ytID: str , lang: str = "en") -> str:
     OUPUT:
         transcript of the video
     """
+
+    key = f"api:transcript:{ytID}:{lang}"
+    cached = get_cache(key=key)
+    if cached:
+        print("YTTapi hit")
+        return cached
+
     ytAPI = YouTubeTranscriptApi()
 
     try:
@@ -40,14 +47,15 @@ def transcript_text(ytID: str , lang: str = "en") -> str:
         # fetches the each text part from different time snippets
         transcript = [text.text for text in res.snippets]
         # combines the whole different "strs" list into a single big "str" 
-        transcript = "".join(transcript)
+        transcript = " ".join(transcript)
+        set_cache(key=key,value=transcript)
         return transcript
     
     except Exception as e:
         raise RuntimeError("failed to fetch the transcript") from e
 
     
-def create_chunks(transcript: str) -> str:
+def create_chunks(transcript: str):
     """
     this function takes the transcript as the input and create the chuncks of it 
     """
