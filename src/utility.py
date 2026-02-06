@@ -3,6 +3,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document 
 
 from helper.supportingFuncs import ytUrlId , transcript_text , create_chunks , fetch_prompts
+from cache.base_cache import get_cache , set_cache
+import hashlib , os 
 
 class Utility:
     def __init__(self , llm , embedder):   
@@ -61,8 +63,15 @@ class Utility:
 
 
     def get_transcript(self,url:str,language="en") -> str:
+        key = f"transcript:{url}:{language}"
+        cached = get_cache(key=key)
+        if cached:
+            print("transcript hit")
+            return cached
 
-        return self._normalise_transcript(url,language)
+        value =  self._normalise_transcript(url,language)
+        set_cache(key=key,value=value)
+        return value
     
     
     def notes(self , url: str ,language="en") -> str:
@@ -74,6 +83,12 @@ class Utility:
         OUPUT:
             notes based on the transcript
         """
+
+        key = f"notes:{url}:{language}"
+        cached = get_cache(key=key)
+        if cached:
+            print("notes hit")
+            return cached
 
         transcript = self._normalise_transcript(url,language)
         
@@ -87,7 +102,9 @@ class Utility:
             chainNotes = promptNotes | self.llm
             res = chainNotes.invoke({"transcript":transcript})
 
-            return res.content
+            value = res.content
+            set_cache(key=key,value=value)
+            return value
         
         except Exception as e:
             raise RuntimeError("failed to create the notes") from e
@@ -103,6 +120,12 @@ class Utility:
             important topics from the transcript
         """
 
+        key = f"summary:{url}:{language}"
+        cached = get_cache(key=key)
+        if cached:
+            print("summary hit")
+            return cached
+
         transcript = self._normalise_transcript(url,language)
         
         promptImpTopics = PromptTemplate(
@@ -115,7 +138,9 @@ class Utility:
             chainImpTopics = promptImpTopics | self.llm 
             res = chainImpTopics.invoke({"transcript":transcript})
 
-            return res.content
+            value =  res.content
+            set_cache(key=key,value=value)
+            return value
 
         except Exception as e:
             raise RuntimeError("failed to create the notes") from e
@@ -127,11 +152,29 @@ class Utility:
         this function takes chuncks as input and create its embddings and store it 
         in a vector store 
         """
+        key = f"vector:{url}:{language}"
+        cached = get_cache(key=key)
 
+        
+        if cached and os.path.exists(cached):
+            print("vector DB hit")
+            return FAISS.load_local(
+                cached , 
+                self.embedder , 
+                allow_dangerous_deserialization=True
+            )
+       
         transcript = self._normalise_transcript(url,language)
         chunks = create_chunks(transcript)
 
         vector_store = FAISS.from_documents(documents = chunks , embedding = self.embedder)
+
+        os.makedirs("cache_house/vectordb" , exist_ok= True)
+        folder = hashlib.sha256(f"{url}:{language}".encode()).hexdigest()
+        save_path = f"cache_house/vectordb/{folder}"
+
+        vector_store.save_local(save_path)
+        set_cache(key=key , value = save_path)
 
         return vector_store
 
@@ -155,8 +198,8 @@ class Utility:
             RuntimeError: If retrieval or generation fails.
         """
 
-        retriver = vector_store.as_retriever(search_type = "similarity" , search_kwargs = {"k":5})
-        res = retriver.invoke(query)
+        retriever = vector_store.as_retriever(search_type = "similarity" , search_kwargs = {"k":5})
+        res = retriever.invoke(query)
 
         resDoc = "\n".join(text.page_content for text in res) 
 
