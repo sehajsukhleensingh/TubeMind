@@ -2,8 +2,9 @@
 
 **TubeMind** is an AI-powered tool that transforms YouTube videos into meaningful knowledge.  
 Ask questions, generate notes, get summary , analyze viewer sentiment — all in one intelligent, interactive interface.
+Unlike passive viewing, TubeMind lets you interact with video content like a knowledgeable assistant — helping you learn more in less time.
 
-Built with **Streamlit** and powered by **Retrieval-Augmented Generation (RAG)**, TubeMind fuses YouTube content with cutting-edge language models to help you **learn smarter, not longer.**
+Powered by Retrieval-Augmented Generation (RAG), TubeMind combines transcript retrieval with language models to deliver context-aware, accurate responses grounded in the original video content. From long lectures and podcasts to tutorials and talks, TubeMind turns videos into searchable, explorable intelligence
 
 ---
 
@@ -30,7 +31,7 @@ Built with **Streamlit** and powered by **Retrieval-Augmented Generation (RAG)**
 
 ## Tech Stack
 
-- **Frontend:** Streamlit  
+- **Frontend:** TypeScript based UI
 - **Backend:** Python  
 - **APIs:** Gemini API, YouTube Transcript API, Hugging Face, Sentiment Analysis Models , sklearn   
 - **Env Management:** dotenv  
