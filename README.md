@@ -34,7 +34,34 @@ Powered by Retrieval-Augmented Generation (RAG), TubeMind combines transcript re
 
 ---
 
-**Clone this repository:**
-   ```bash
-   git clone https://github.com/sehajsukhleensing/TubeMind.git
-   cd TubeMind
+##  Setup Instructions
+
+### 1 Clone the Repository
+```
+git clone https://github.com/sehajsukhleensingh/TubeMind.git
+cd TubeMind
+```
+
+### 2 Backend setup 
+```
+# Create virtual environment (Optional but recommended)
+python -m venv venv
+# Activate: source venv/bin/activate (Mac/Linux) or .\venv\Scripts\activate (Windows)
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the backend server
+uvicorn api.app:app --reload
+```
+
+### 3 Frontend setup 
+```
+cd frontend
+
+# Install Node dependencies
+npm install
+
+# Run the development server
+npm run dev
+```
