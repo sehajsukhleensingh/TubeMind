@@ -23,6 +23,7 @@ Powered by Retrieval-Augmented Generation (RAG), TubeMind combines transcript re
 ## Flowchart
 <img src = "https://github.com/sehajsukhleensingh/TubeMind/blob/38046cbabc50d2379b7129b0b206691bc3aa9b79/images/flowchart.png" alt = "flowchart" height = "50%" width = "50%">
 ---
+
 ## Tech Stack
 
 - **Frontend:** TypeScript based UI
