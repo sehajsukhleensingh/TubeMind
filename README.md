@@ -12,13 +12,9 @@ Powered by Retrieval-Augmented Generation (RAG), TubeMind combines transcript re
 
 -  **Ask Anything** — Enter a YouTube link or topic and query the video like a search engine.  
 -  **Smart Notes** — Auto-generate clean summaries, timestamps, and structured insights.  
--  **Comment Sentiment Analysis** — Understand audience opinions and emotions instantly.  
--  **Analytics Dashboard** — Visualize engagement trends and viewer reactions.
 -  **Summary** - to get the short , accurate and a consise summary of videos ( life saver for husge long loooongg podcasts )
 -  **Multi-Video Comparison (Coming Soon)** — Compare insights from multiple videos on the same topic.  
-
 ---
-
 ##  Project Pictures 
 <img src = "https://github.com/sehajsukhleensingh/TubeMind/blob/38046cbabc50d2379b7129b0b206691bc3aa9b79/images/ss1.png" height = "50%" width = "50%" >
 <img src = "https://github.com/sehajsukhleensingh/TubeMind/blob/38046cbabc50d2379b7129b0b206691bc3aa9b79/images/ss2.png" height = "50%" width = "50%" >
@@ -26,9 +22,7 @@ Powered by Retrieval-Augmented Generation (RAG), TubeMind combines transcript re
 
 ## Flowchart
 <img src = "https://github.com/sehajsukhleensingh/TubeMind/blob/38046cbabc50d2379b7129b0b206691bc3aa9b79/images/flowchart.png" alt = "flowchart" height = "50%" width = "50%">
-
 ---
-
 ## Tech Stack
 
 - **Frontend:** TypeScript based UI
