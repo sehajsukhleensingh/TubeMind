@@ -1,0 +1,18 @@
+# venv 
+VENV/
+
+#git files 
+.gitignore
+README.md
+images/
+flowchart/
+
+#some testing files
+rag-pipeline.ipynb
+tempTesting.ipynb 
+
+# env file 
+.env
+
+#mac file 
+.DS_Store
