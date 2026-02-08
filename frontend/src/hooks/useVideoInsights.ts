@@ -28,6 +28,7 @@ function parseNotesString(notes: string): string[] {
 
 export function useVideoInsights() {
   const [url, setUrl] = useState("");
+  const [lang, setLang] = useState("en");
   const [currentVideo, setCurrentVideo] = useState<VideoData | null>(null);
   const [history, setHistory] = useState<VideoData[]>([]);
   
@@ -51,7 +52,7 @@ export function useVideoInsights() {
       "Building Scalable Web Applications",
       "The Future of Artificial Intelligence",
       "Data Science for Beginners",
-      "Advanced React Patterns",
+      "TubeMind",
     ];
     return titles[Math.floor(Math.random() * titles.length)];
   };
@@ -92,7 +93,7 @@ export function useVideoInsights() {
     );
 
     try {
-      const { important_topics } = await api.importantTopics({ url: video.url });
+      const { important_topics } = await api.importantTopics({ url: video.url, lang });
       const updatedVideo = { ...video, summary: important_topics, notes: null, transcript: null };
       setCurrentVideo(updatedVideo);
       setHistory((prev) => prev.map((v) => (v.id === video.id ? updatedVideo : v)));
@@ -122,7 +123,7 @@ export function useVideoInsights() {
     );
 
     try {
-      const { notes } = await api.notes({ url: video.url });
+      const { notes } = await api.notes({ url: video.url, lang });
       const notesArray = parseNotesString(notes);
       const updatedVideo = {
         ...video,
@@ -158,7 +159,7 @@ export function useVideoInsights() {
     );
 
     try {
-      const { transcript } = await api.transcript({ url: video.url });
+      const { transcript } = await api.transcript({ url: video.url, lang });
       const updatedVideo = { ...video, transcript, summary: null, notes: null };
       setCurrentVideo(updatedVideo);
       setHistory((prev) => prev.map((v) => (v.id === video.id ? updatedVideo : v)));
@@ -192,6 +193,13 @@ export function useVideoInsights() {
     setVisibleSections((prev) => ({ ...prev, chat: false }));
   }, []);
 
+  const toggleSectionVisibility = useCallback((section: 'summary' | 'notes' | 'transcript') => {
+    setVisibleSections((prev) => ({
+      ...prev,
+      [section]: false,
+    }));
+  }, []);
+
   const sendMessage = useCallback(async (message: string) => {
     if (!currentVideo) return;
 
@@ -211,6 +219,7 @@ export function useVideoInsights() {
     try {
       const { response } = await api.ask({
         url: currentVideo.url,
+        lang,
         query: message,
       });
 
@@ -244,45 +253,12 @@ export function useVideoInsights() {
     }
   }, [currentVideo]);
 
-  const selectFromHistory = useCallback((id: string) => {
-    const video = history.find((v) => v.id === id);
-    if (video) {
-      setCurrentVideo(video);
-      setUrl(video.url);
-      const showSummary = !!video.summary;
-      const showNotes = !!video.notes?.length;
-      const showTranscript = !!video.transcript;
-      const showChat = video.messages.length > 0;
-      const only =
-        showSummary
-          ? { summary: true, notes: false, transcript: false, chat: false }
-          : showNotes
-            ? { summary: false, notes: true, transcript: false, chat: false }
-            : showTranscript
-              ? { summary: false, notes: false, transcript: true, chat: false }
-              : showChat
-                ? { summary: false, notes: false, transcript: false, chat: true }
-                : { summary: false, notes: false, transcript: false, chat: false };
-      setVisibleSections(only);
-    }
-  }, [history]);
-
-  const goHome = useCallback(() => {
-    setCurrentVideo(null);
-    setUrl("");
-    setVisibleSections({
-      summary: false,
-      notes: false,
-      transcript: false,
-      chat: false,
-    });
-  }, []);
-
   return {
     url,
     setUrl,
+    lang,
+    setLang,
     currentVideo,
-    history,
     loadingStates,
     visibleSections,
     generateSummary,
@@ -291,7 +267,6 @@ export function useVideoInsights() {
     openChat,
     closeChat,
     sendMessage,
-    selectFromHistory,
-    goHome,
+    toggleSectionVisibility,
   };
 }

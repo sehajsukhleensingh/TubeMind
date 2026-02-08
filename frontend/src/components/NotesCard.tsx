@@ -1,4 +1,4 @@
-import { ListChecks } from "lucide-react";
+import { ListChecks, X } from "lucide-react";
 import { FormattedContent } from "@/components/FormattedContent";
 
 const NOTES_CONTENT_CLASS =
@@ -8,18 +8,30 @@ interface NotesCardProps {
   notes: string[] | null;
   isLoading: boolean;
   isVisible: boolean;
+  onClose?: () => void;
 }
 
-export function NotesCard({ notes, isLoading, isVisible }: NotesCardProps) {
+export function NotesCard({ notes, isLoading, isVisible, onClose }: NotesCardProps) {
   if (!isVisible && !isLoading) return null;
 
   return (
     <div className="card-elevated rounded-xl p-5 animate-slide-up">
-      <div className="section-header">
-        <div className="w-9 h-9 rounded-lg bg-action-green/10 flex items-center justify-center">
-          <ListChecks className="w-4 h-4 text-action-green" />
+      <div className="flex items-center justify-between mb-4">
+        <div className="section-header">
+          <div className="w-9 h-9 rounded-lg bg-action-green/10 flex items-center justify-center">
+            <ListChecks className="w-4 h-4 text-action-green" />
+          </div>
+          <h2 className="font-semibold text-foreground">Key Notes</h2>
         </div>
-        <h2 className="font-semibold text-foreground">Key Notes</h2>
+        {onClose && !isLoading && (
+          <button
+            onClick={onClose}
+            className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Close notes"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
       
       {isLoading ? (

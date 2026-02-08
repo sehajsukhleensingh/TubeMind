@@ -1,4 +1,4 @@
-import { ScrollText } from "lucide-react";
+import { ScrollText, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FormattedContent } from "@/components/FormattedContent";
 
@@ -6,18 +6,30 @@ interface TranscriptCardProps {
   transcript: string | null;
   isLoading: boolean;
   isVisible: boolean;
+  onClose?: () => void;
 }
 
-export function TranscriptCard({ transcript, isLoading, isVisible }: TranscriptCardProps) {
+export function TranscriptCard({ transcript, isLoading, isVisible, onClose }: TranscriptCardProps) {
   if (!isVisible && !isLoading) return null;
 
   return (
     <div className="card-elevated rounded-xl p-5 animate-slide-up">
-      <div className="section-header">
-        <div className="w-9 h-9 rounded-lg bg-action-purple/10 flex items-center justify-center">
-          <ScrollText className="w-4 h-4 text-action-purple" />
+      <div className="flex items-center justify-between mb-4">
+        <div className="section-header">
+          <div className="w-9 h-9 rounded-lg bg-action-purple/10 flex items-center justify-center">
+            <ScrollText className="w-4 h-4 text-action-purple" />
+          </div>
+          <h2 className="font-semibold text-foreground">Transcript</h2>
         </div>
-        <h2 className="font-semibold text-foreground">Transcript</h2>
+        {onClose && !isLoading && (
+          <button
+            onClick={onClose}
+            className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Close transcript"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
       
       {isLoading ? (
